@@ -1,0 +1,39 @@
+<?php
+
+function junkfiles_cronapi($op, $job = NULL) {
+  $items['junkfiles_cron'] = array(
+    'description' => 'Clear Junk file content',
+    'rule' => '* * */1 * *', // Every 10 minutes
+    'callback' => 'junkfiles_cron',
+  );
+  return $items;
+}
+
+function junkfiles_cron(){
+
+	//Variables Settings for log file clear
+	/*if ($wrapper = file_stream_wrapper_get_instance_by_uri('public://')) {
+    	$realpath = $wrapper->realpath(); //to get the real path of Drupal file system
+  	}*/
+
+	$tmp_folder 		= file_directory_temp(); // get the temporary directory
+	$file_name 			= 'drupal_debug.txt'; //filename
+	$files_expression 	= $tmp_folder.'/'.$file_name; 
+	
+	if(trim(file_get_contents($files_expression)) != '') //checking condition if file contains content
+	{
+		// echo 'clearing file';
+		$f = @fopen($files_expression, "r+"); //open file
+		if ($f !== false) {
+		    ftruncate($f, 0); //truncate the file
+		    fclose($f);
+		}
+	}
+
+	watchdog('cron', 'Archivos basura empty Cron!');
+  
+}
+
+
+
+?>
